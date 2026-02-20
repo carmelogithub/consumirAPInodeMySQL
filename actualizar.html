@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+</head>
+<body style="margin:20px">
+     <nav class="navbar bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">Inicio</a>
+    <a class="navbar-brand" href="guardar.html">Añadir</a>
+    <a class="navbar-brand" href="actualizar.html">Actualizar</a>
+    <a class="navbar-brand" href="eliminar.html">Eliminar</a>
+  </div>
+</nav>
+    <h2>Actualizar tutorial</h2>
+    <!-- Primera parte. Seleccionar el id.   -->
+    <label for="codigo">Indica el ID del tutorial a actualizar</label>
+        <input type="number" id="codigo">
+        <button onclick="obtenerTutorialPorId()">Consultar por ID</button>
+        <p id="dato"></p>
+        <hr>
+<!-- Segunda parte con el formulario de edición -->
+        <form id="actualizarForm">
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title"><br><br>
+            <label for="description">Descripción:</label>
+            <input type="text" id="description" name="description"><br><br>
+            <label>
+                <input type="checkbox" id="published" name="published">
+                Publicado
+            </label>
+            <button type="button" id="btnActualizar">Actualizar</button>
+        </form>
+
+<p id="mensaje"></p>
+
+<script>
+        async function obtenerTutorialPorId(){
+          const datos=document.getElementById("dato");
+            try{
+            const codigo=document.getElementById("codigo").value;
+            const respuesta=await fetch(`http://localhost:8080/api/tutorials/${codigo}`);
+            if(!respuesta.ok){
+                throw new Error("Tutorial no encontrado");
+            }
+            console.log(respuesta);
+            const data=await respuesta.json();
+            console.log(data);
+            
+            datos.textContent=data.title + "-" + data.description;
+
+            document.getElementById("title").value = data.title;
+            document.getElementById("description").value = data.description;    
+            document.getElementById("published").checked = data.published;
+
+
+           }catch(error){
+            datos.textContent="Error al obtener el tutorial: " + error.message;
+           }
+            
+        }//cierra function
+        
+        document.getElementById("btnActualizar").addEventListener("click", async () => {
+            const id = document.getElementById("codigo").value;
+            const title = document.getElementById("title").value;
+            const description = document.getElementById("description").value;
+            const published = document.getElementById("published").checked;
+
+            const tutorial = { title, description, published };
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/tutorials/${id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(tutorial)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Error al actualizar el tutorial");
+                }
+
+                const data = await response.json();
+                console.log(data);
+                document.getElementById("mensaje").textContent = "Tutorial actualizado con éxito";
+            } catch (error) {
+                console.error(error);
+                document.getElementById("mensaje").textContent = "Error al actualizar el tutorial: " + error.message;
+            }
+        });
+</script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+</body>
+</html>

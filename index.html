@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+</head>
+<body style="margin:20px">
+    <nav class="navbar bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">Inicio</a>
+    <a class="navbar-brand" href="guardar.html">Añadir</a>
+    <a class="navbar-brand" href="actualizar.html">Actualizar</a>
+    <a class="navbar-brand" href="eliminar.html">Eliminar</a>
+  </div>
+</nav>
+    <h2>CRUD con MySQL a través de Node + Express</h2>
+
+    <h3>Consultar datos</h3>
+    <button class="btn btn-success" onclick="obtenerDescriptionTutoriales()">Ver detalles de tutoriales</button>
+    <hr>
+  
+        <label for="codigo">Indica el ID del tutorial a consultar</label>
+        <input type="number" id="codigo" class="form-control" >
+        <button class="btn btn-warning" onclick="obtenerTutorialPorId()">Consultar por ID</button>
+        <p id="dato"></p>
+   
+    <ul id="lista"></ul>
+    <hr>
+    <ul id="lista_description"></ul>
+    <script>
+
+        async function obtenerTutorialPorId(){
+          const datos=document.getElementById("dato");
+            try{
+            const codigo=document.getElementById("codigo").value;
+            const respuesta=await fetch(`http://localhost:8080/api/tutorials/${codigo}`);
+            if(!respuesta.ok){
+                throw new Error("Tutorial no encontrado");
+            }
+            console.log(respuesta);
+            const data=await respuesta.json();
+            console.log(data);
+            
+            datos.textContent=data.title + "-" + data.description;
+           }catch(error){
+            datos.textContent="Error al obtener el tutorial: " + error.message;
+           }
+            
+        }
+
+       async function obtenerTutoriales(){
+            const respuesta=await fetch("http://localhost:8080/api/tutorials");
+            console.log(respuesta);
+            const data=await respuesta.json();
+            console.log(data);
+            const lista=document.getElementById("lista");
+            data.forEach(tutorial => {
+                const li=document.createElement("li");
+                li.textContent=tutorial.title;
+                lista.appendChild(li);
+            });
+            
+        }
+        //llamada a la función
+        obtenerTutoriales();
+
+        async function obtenerDescriptionTutoriales(){
+            const respuesta=await fetch("http://localhost:8080/api/tutorials");
+        
+            const data=await respuesta.json();
+            console.log(data);
+            const lista=document.getElementById("lista_description");
+            data.forEach(tutorial => {
+                const li=document.createElement("li");
+                li.textContent=tutorial.description;
+                lista.appendChild(li);
+            });
+            
+        }
+    </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+</body>
+</html>
